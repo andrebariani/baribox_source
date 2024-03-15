@@ -213,6 +213,45 @@ document.head.appendChild(HTML.style({ type: "text/css" }, `
     transition-delay: 0.35s;
 }
 
+
+.corruption-song-settings {
+	pointer-events: none;
+    opacity: 0;
+    -webkit-transition: opacity 0.5s ease-in;
+    -moz-transition: opacity 0.5s ease-in;
+    -o-transition: opacity 0.5s ease-in;
+    -ms-transition: opacity 0.5s ease-in;
+    transition: opacity 0.5s ease-in;
+    transition-delay: 0.35s;
+}
+
+.spawn {
+	pointer-events: unset;
+}
+
+.corruption-surprise {
+	height: 0em;
+    -webkit-transition: height 0.5s ease-in-out;
+    -moz-transition: height 0.5s ease-in-out;
+    -o-transition: height 0.5s ease-in-out;
+    -ms-transition: height 0.5s ease-in-out;
+    transition: height 0.5s ease-in-out;
+    transition-delay: 0.35s;
+}
+
+.corruption-surprise-anim {
+	height: 219px;
+}
+
+.finish {
+	height: fit-content;
+}
+
+.disabled-dropdown-group {
+	opacity: 0.5;
+}
+
+
 .instrument-settings-area {
     opacity: 0;
     -webkit-transition: opacity 0.5s ease-in;
@@ -1001,6 +1040,16 @@ document.head.appendChild(HTML.style({ type: "text/css" }, `
 	grid-column-gap: 4px;
 }
 
+.beepboxEditor button .corruptButtonIcon {
+	flex-shrink: 0;
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none;
+	width: var(--button-size);
+	height: var(--button-size);
+}
 .beepboxEditor button.playButton::before {
 	content: "";
 	flex-shrink: 0;
@@ -1397,6 +1446,12 @@ document.head.appendChild(HTML.style({ type: "text/css" }, `
 }
 
 .beepboxEditor .editor-controls {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.beepboxEditor .editor-corruption-controls {
 	flex-shrink: 0;
 	display: flex;
 	flex-direction: column;
