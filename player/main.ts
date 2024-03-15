@@ -45,7 +45,7 @@ import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 	button:hover, button:focus {
 		background: ${ColorConfig.uiWidgetFocus};
 	}
-	.playButton, .pauseButton {
+	.playButton, .pauseButton, .corruptButton {
 		padding-left: 24px;
 		padding-right: 6px;
 	}
