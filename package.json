@@ -1,7 +1,7 @@
 {
-	"name": "UltraBox",
+	"name": "BariBox",
 	"version": "2.2.15",
-	"description": "UltraBox is a mod of BeepBox that aims to combine every other beepmod into one.",
+	"description": "BariBox™ is a mod of UltraBox which is a mod of GoldBox which is a mod of JummBox which is a mod of BeepBox.",
 	"author": "Main",
 	"contributors": [
 		"Neputendo",
@@ -41,8 +41,10 @@
 		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"@types/jquery": "^3.5.5",
-		"@types/select2": "^4.0.53",
+		"@types/jquery": "^3.5.29",
+		"@types/select2": "^4.0.63",
+		"electron": "^29.1.1",
+		"electron-packager": "^17.1.2",
 		"imperative-html": "^0.1.0",
 		"select2": "^4.0.13"
 	}

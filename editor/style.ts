@@ -230,6 +230,59 @@ html {
 
 .spawn {
 	pointer-events: unset;
+	display: inherit;
+}
+
+.unload {
+	opacity: 0;
+}
+
+.despawn {
+	display: none;
+}
+
+@property --inner {
+	syntax: '<percentage>';
+	inherits: false;
+	initial-value: 0%;
+}
+
+@property --outer {
+	syntax: '<percentage>';
+	inherits: false;
+	initial-value: 0%;
+}
+
+.spawn-anim {
+	pointer-events: none;
+	background: radial-gradient(circle, var(--primary-text) var(--inner), var(--editor-background) var(--outer));
+	border-radius: 5px;
+	animation-name: anim-flash;
+	animation-duration: 4s;
+	animation-fill-mode: forwards;
+	animation-timing-function: linear;s
+}
+  
+@keyframes anim-flash {
+	from {
+		opacity: 1;
+		--inner: 0%;
+		--outer: 0%;
+	}
+    25% {
+		--inner: 50%;
+		--outer: 100%;
+	}
+	50% {
+		opacity: 1;
+		--inner: 100%;
+		--outer: 100%;
+	}
+	to {
+		opacity: 0;
+        --inner: 100%;
+		--outer: 100%;
+	}
 }
 
 .corruption-surprise {
@@ -242,8 +295,17 @@ html {
     transition-delay: 0.35s;
 }
 
+.corruption-surprise-layout {
+	opacity: 0;
+    -webkit-transition: opacity 0.5s ease-in-out;
+    -moz-transition: opacity 0.5s ease-in-out;
+    -o-transition: opacity 0.5s ease-in-out;
+    -ms-transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.5s ease-in-out;
+}
+
 .corruption-surprise-anim {
-	height: 219px;
+	height: 195.5px;
 }
 
 .finish {
@@ -252,6 +314,27 @@ html {
 
 .disabled-dropdown-group {
 	opacity: 0.5;
+}
+
+.countdown-surprise {
+	height: 0em;
+	opacity: 0;
+	-webkit-transition: height 0.5s ease-in-out;
+    -moz-transition: height 0.5s ease-in-out;
+    -o-transition: height 0.5s ease-in-out;
+    -ms-transition: height 0.5s ease-in-out;
+    transition: height 0.5s ease-in-out;
+
+	-webkit-transition: opacity 0.5s ease-in-out;
+    -moz-transition: opacity 0.5s ease-in-out;
+    -o-transition: opacity 0.5s ease-in-out;
+    -ms-transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.open {
+	height: 26px;
+	opacity: 1;
 }
 
 
@@ -339,6 +422,10 @@ html {
 .beepboxEditor .menu-area{ grid-area: menu-area; }
 .beepboxEditor .song-settings-area{ grid-area: song-settings-area; }
 .beepboxEditor .instrument-settings-area{ grid-area: instrument-settings-area; }
+
+.beepboxEditor .tipless {
+	color: ${ColorConfig.secondaryText};
+}
 
 .beepboxEditor .tip {
 	cursor: help;
