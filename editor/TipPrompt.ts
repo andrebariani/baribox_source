@@ -547,6 +547,64 @@ export class TipPrompt implements Prompt {
 					p("This setting is a volume multiplier applied to the second voice. This setting will only work correctly with two voices."),
 				);
 			} break;
+			case "corruptionDomains": {
+				message = div(
+					h2("Domains"),
+					p("BariBox™ introduces Corruptions! With just a click of a button, the corruptor it will go through your song and assign random values to the selected areas which are called domains. Try toggling the options to mix and match the desired effects until you get the bestest quality possible! Technically this is more like a Randomizer but the term Corruption is more marketable and SEO friendly."),
+					p("Be mindful that when you access BariBox™ for the very first time, it will automatically corrupt the song only once and with some corruption options toggled on. This is so everyone accessing the link for the first time will get a personalized experience. Why? Funny."),
+					p("💡 Did you know? If you have Channel Muting enabled in Preferences, you can mute a channel to keep it from corrupting!"),
+				);
+			} break;
+			case "corruptionNotes": {
+				message = div(
+					h2("Note"),
+					p("When set, every note will get a new random value. It won't affect mod channels though."),
+				);
+			} break;
+			case "corruptionKeepPitch": {
+				message = div(
+					h2("Keep Pitch"),
+					p("If set, the new value will be based on a shuffled piano which makes the song a bit recognizable even when it gets corrupted. Else the new value will be completely random."),
+				);
+			} break;
+			case "corruptionStayOnScale": {
+				message = div(
+					h2("Stay in Scale"),
+					p("If set, the new note value will snap to the currently selected scale as if it were moved up. With a pentatonic scale selected for example you can generate an almost ok-ish sounding music. But that's not exactly funny so why would you do that?"),
+				);
+			} break;
+			case "corruptionPatterns": {
+				message = div(
+					h2("Patterns"),
+					p("When set, all bars in the song will get a new value for its pattern. This also applies for mod channels."),
+				);
+			} break;
+			case "corruptionEmptyPatterns": {
+				message = div(
+					h2("Unused Patterns"),
+					p("If set, the new value for the pattern could be of an unused, noteless pattern. Otherwise the new value will be from a used pattern."),
+				);
+			} break;
+			case "corruptionInstruments": {
+				message = div(
+					h2("Instruments"),
+					p("Basically a more simplified but chaotic version of the Random Generated Instrument, since it won't change the instrument Type."),
+					p("If you activate Volume, I think it goes without saying that ⚠ VOLUME WARNING!"),
+				);
+			} break;
+			case "corruptionLayout": {
+				message = div(
+					h2("⚠ Layout ⚠"),
+					p("Congrats, you've unlocked the secret Layout Domain!"),
+					p("When set, it will assign random values to some elements of the layout, probably making it unable to work with. Be careful as these changes are not undoable like the other domains, so you'll have to restart the page to restore the layout."),
+				);
+			} break;
+			case "corruptionLayoutAuto": {
+				message = div(
+					h2("Auto-corrupt"),
+					p("Once it starts, it won't stop until it has consumed the entirety of BeepBox."),
+				);
+			} break;
 
 			default:
 				// Check for modSetinfo#

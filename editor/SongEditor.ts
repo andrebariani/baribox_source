@@ -728,9 +728,9 @@ class CustomAlgorythmCanvas {
 export class SongEditor {
     public prompt: Prompt | null = null;
 
-    public corruptDomains: CorruptionDomains = { pitch: false, pattern: false, instrument: false }
+    public corruptDomains: CorruptionDomains = { pitch: false, pattern: false, instrument: false, layout: false }
     public corruptInstrumentOpt: CorruptionInstrumentOptions = {
-        volume: true,
+        volume: false,
         pan: true,
         distortion: true,
         transition: true,
@@ -738,39 +738,77 @@ export class SongEditor {
         detune: true,
     }
     public corruptOptions: CorruptionOptions = { 
-        keepPitch: false,
+        keepPitch: true,
         includeNotelessPatterns: false,
+        stayOnScale: false,
+        autoCorruptLayout: false,
         intensity: 0,
         domains: this.corruptDomains,
         instrumentOptions: this.corruptInstrumentOpt
     }
     public firstAccessLocalStorage: string = "firstAccessToBariBox";
     public showFakeErrorMessageLocalStorage: string = "showedFakeErrorMessage";
+    public surpriseCountdownLocalStorage: string = "bariboxSurpriseCountdown";
     public isFirstAccessToBariBox: boolean = JSON.parse(getLocalStorageItem(this.firstAccessLocalStorage, "true"));
     public showFakeErrorMessage: boolean = JSON.parse(getLocalStorageItem(this.showFakeErrorMessageLocalStorage, "true"));
+    public totalSurpriseCountdown: number = 25;
+    public surpriseCountdown: number = JSON.parse(getLocalStorageItem(this.surpriseCountdownLocalStorage, `${this.totalSurpriseCountdown}`));
+    // public surpriseCountdown: number = JSON.parse(`${this.totalSurpriseCountdown}`);
 
     public bariboxFirstLoad = (): void => {
-        this._corruptInstrumentVolumeBox.checked = true;
+        this._corruptOptionKeepPitchBox.checked = true;
+
+        this._corruptInstrumentVolumeBox.checked = false;
         this._corruptInstrumentPanBox.checked = true;
         this._corruptInstrumentDistortionBox.checked = true;
         this._corruptInstrumentTransitionBox.checked = true;
         this._corruptInstrumentVibratoBox.checked = true;
         this._corruptInstrumentDetuneBox.checked = true;
 
+        this.corruptDomains.pitch
+            ? this._corruptNoteDropdownGroup.classList.remove("disabled-dropdown-group")
+            : this._corruptNoteDropdownGroup.classList.add("disabled-dropdown-group");
+
+        this.corruptDomains.pattern
+            ? this._corruptPatternDropdownGroup.classList.remove("disabled-dropdown-group")
+            : this._corruptPatternDropdownGroup.classList.add("disabled-dropdown-group");
+
         this.corruptDomains.instrument
             ? this._corruptInstrumentDropdownGroup.classList.remove("disabled-dropdown-group")
             : this._corruptInstrumentDropdownGroup.classList.add("disabled-dropdown-group");
 
-        if( JSON.parse(getLocalStorageItem("firstAccessToBariBox", "true")) ) {
+        this.corruptDomains.layout
+            ? this._corruptLayoutDropdownGroup.classList.remove("disabled-dropdown-group")
+            : this._corruptLayoutDropdownGroup.classList.add("disabled-dropdown-group");
+
+        if( this.isFirstAccessToBariBox ) {
             this.corruptDomains.pitch = true;
+            this.corruptDomains.pattern = true;
+            this.corruptDomains.instrument = true;
             this.corruptOptions.keepPitch = true;
 
             this._corruptDomainPitchBox.checked = this.corruptDomains.pitch ? true : false;
+            this._corruptDomainPatternBox.checked = this.corruptDomains.pattern ? true : false;
+            this._corruptDomainInstrumentBox.checked = this.corruptDomains.instrument ? true : false;
             this._corruptOptionKeepPitchBox.checked = this.corruptOptions.keepPitch ? true : false;
+            this._corruptNoteDropdownGroup.classList.remove("disabled-dropdown-group");
+            this._corruptPatternDropdownGroup.classList.remove("disabled-dropdown-group");
+            this._corruptInstrumentDropdownGroup.classList.remove("disabled-dropdown-group");
+
             this._corruptBeep();
         } else {
             this.spawnCorruptionSettings(100);
+            if (this.surpriseCountdown === 0) {
+                this.spawnLayoutSettings();
+            } else if (this.isBelowFraction(this.surpriseCountdown, this.totalSurpriseCountdown, 5)) {
+                this._corruptSurpriseCountdown.classList.add("open");
+                this._corruptSurpriseCountdown.children[0].innerHTML = `${this.surpriseCountdown} clicks remaining`;
+            }
         }
+    }
+    
+    public isBelowFraction = (count: number, total: number, fraction: number): boolean => { 
+        return Math.ceil(count / (total / fraction)) < fraction ;
     }
     
     public spawnCorruptionSettings = (delay: number): void => {
@@ -782,6 +820,12 @@ export class SongEditor {
         }, delay);
     }
 
+    public spawnLayoutSettings = (): void => {
+        this._corruptSurpriseCountdown.style.display = "none";
+        this._corruptDomainLayoutRow.style.display = "flex";
+        this._corruptDomainLayoutRow.style.opacity = "1";
+    }
+
     private readonly _corruptionIcon: SVGElement = SVG.svg({ class: "corruptButtonIcon", viewBox: "-35 -35 270 270" }, [
         SVG.path({ fill: "currentColor", d: "M90 155 l0 -45 -45 0 c-25 0 -45 -4 -45 -10 0 -5 20 -10 45 -10 l45 0 0 -45 c0 -25 5 -45 10 -45 6 0 10 20 10 45 l0 45 45 0 c25 0 45 5 45 10 0 6 -20 10 -45 10 l -45 0 0 45 c0 25 -4 45 -10 45 -5 0 -10 -20 -10 -45z" }),
         SVG.path({ fill: "currentColor", d: "M42 158 c-15 -15 -16 -38 -2 -38 6 0 10 7 10 15 0 8 7 15 15 15 8 0 15 5 15 10 0 14 -23 13 -38 -2z" }),
@@ -789,57 +833,76 @@ export class SongEditor {
         SVG.path({ fill: "currentColor", d: "M32 58 c3 -23 48 -40 48 -19 0 6 -7 11 -15 11 -8 0 -15 7 -15 15 0 8 -5 15 -11 15 -6 0 -9 -10 -7 -22z" }),
         SVG.path({ fill: "currentColor", d: "M150 65 c0 -8 -7 -15 -15 -15 -8 0 -15 -4 -15 -10 0 -14 23 -13 38 2 15 15 16 38 2 38 -5 0 -10 -7 -10 -15z" })]);
     private readonly _corruptButton: HTMLButtonElement = button({ class: "corruptButton", type: "button", style: "width: 100%;", title: "Play (Space)" }, this._corruptionIcon, span("Corrupt"));
-    private readonly _corruptOptionKeepPitchBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 4em;" });
-    private readonly _corruptOptionKeepPitchRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("backwards") }, "Keep Pitch: "), this._corruptOptionKeepPitchBox);
-    private readonly _corruptOptionIncludeNullPatternsBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 4em;" });
-    private readonly _corruptOptionIncludeNullPatternsRow = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("backwards") }, "Include noteless patterns: "), this._corruptOptionIncludeNullPatternsBox);
-    private readonly _corruptDomainPitchBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 1em;" });
-    private readonly _corruptDomainPitchRow = div(
-        { class: "selectRow", style: "justify-content: unset" },
-        this._corruptDomainPitchBox,
-        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Notes"),
+    private readonly _corruptOptionKeepPitchBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
+    private readonly _corruptOptionKeepPitchRow = div(
+        { class: "selectRow dropFader", style: "justify-content: unset" },
+        this._corruptOptionKeepPitchBox,
+        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("corruptionKeepPitch") }, "Keep pitch"),
     );
-    private readonly _corruptDomainPatternBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 1em;" });
-    private readonly _corruptDomainPatternRow = div(
-        { class: "selectRow", style: "justify-content: unset" },
-        this._corruptDomainPatternBox,
-        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Pattern"),
+    private readonly _corruptOptionStayOnScaleBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
+    private readonly _corruptOptionStayOnScaleRow = div(
+        { class: "selectRow dropFader", style: "justify-content: unset" },
+        this._corruptOptionStayOnScaleBox,
+        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("corruptionStayOnScale") }, "Stay on Scale"),
+    );
+    private readonly _corruptOptionIncludeNullPatternsBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
+    private readonly _corruptOptionIncludeNullPatternsRow = div(
+        { class: "selectRow dropFader", style: "justify-content: unset" },
+        this._corruptOptionIncludeNullPatternsBox,
+        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("corruptionEmptyPatterns") }, "Empty patterns"),
     );
     private readonly _corruptInstrumentVolumeBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
     private readonly _corruptInstrumentVolumeRow = div(
         { class: "selectRow dropFader", style: "justify-content: unset" },
         this._corruptInstrumentVolumeBox,
-        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Volume"),
+        span({ class: "tipless", style: "line-height: normal;" }, "⚠ Volume ⚠"),
     );
     private readonly _corruptInstrumentPanBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
     private readonly _corruptInstrumentPanRow = div(
         { class: "selectRow dropFader", style: "justify-content: unset" },
         this._corruptInstrumentPanBox,
-        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Panning"),
+        span({ class: "tipless", style: "line-height: normal;" }, "Panning"),
     );
     private readonly _corruptInstrumentTransitionBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
     private readonly _corruptInstrumentTransitionRow = div(
     { class: "selectRow dropFader", style: "justify-content: unset" },
     this._corruptInstrumentTransitionBox,
-    span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Transition"),
+    span({ class: "tipless", style: "line-height: normal;" }, "Transition"),
     );
     private readonly _corruptInstrumentDistortionBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
     private readonly _corruptInstrumentDistortionRow = div(
         { class: "selectRow dropFader", style: "justify-content: unset" },
         this._corruptInstrumentDistortionBox,
-        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Distortion"),
+        span({ class: "tipless", style: "line-height: normal;" }, "Distortion"),
     );
     private readonly _corruptInstrumentVibratoBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
     private readonly _corruptInstrumentVibratoRow = div(
         { class: "selectRow dropFader", style: "justify-content: unset" },
         this._corruptInstrumentVibratoBox,
-        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Vibrato"),
+        span({ class: "tipless", style: "line-height: normal;" }, "Vibrato"),
     );
     private readonly _corruptInstrumentDetuneBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
     private readonly _corruptInstrumentDetuneRow = div(
         { class: "selectRow dropFader", style: "justify-content: unset" },
         this._corruptInstrumentDetuneBox,
-        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Detune"),
+        span({ class: "tipless", style: "line-height: normal;" }, "Detune"),
+    );
+    private readonly _corruptLayoutAutoCorruptBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 1.4em; margin-right: 1em;" });
+    private readonly _corruptLayoutAutoCorruptRow = div(
+        { class: "selectRow dropFader", style: "justify-content: unset" },
+        this._corruptLayoutAutoCorruptBox,
+        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("corruptionLayoutAuto") }, "Auto-corrupt"),
+    );
+    private readonly _corruptNoteDropdown: HTMLButtonElement = button({ style: "margin-left:1em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(DropdownID.CorruptNote) }, "▼");
+    private readonly _corruptNoteDropdownGroup: HTMLElement = div(
+        { class: "editor-corruption-controls", style: "display: none;" },
+        this._corruptOptionKeepPitchRow,
+        this._corruptOptionStayOnScaleRow,
+    );
+    private readonly _corruptPatternDropdown: HTMLButtonElement = button({ style: "margin-left:1em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(DropdownID.CorruptPattern) }, "▼");
+    private readonly _corruptPatternDropdownGroup: HTMLElement = div(
+        { class: "editor-corruption-controls", style: "display: none;" },
+        this._corruptOptionIncludeNullPatternsRow,
     );
     private readonly _corruptInstrumentDropdown: HTMLButtonElement = button({ style: "margin-left:1em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(DropdownID.CorruptInstrument) }, "▼");
     private readonly _corruptInstrumentDropdownGroup: HTMLElement = div(
@@ -851,12 +914,42 @@ export class SongEditor {
         this._corruptInstrumentVibratoRow,
         this._corruptInstrumentDetuneRow,
     );
+    private readonly _corruptLayoutDropdown: HTMLButtonElement = button({ style: "margin-left:1em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(DropdownID.CorruptLayout) }, "▼");
+    private readonly _corruptLayoutDropdownGroup: HTMLElement = div(
+        { class: "editor-corruption-controls", style: "display: none;" },
+        this._corruptLayoutAutoCorruptRow,
+    );
+    private readonly _corruptDomainPitchBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 1em;" });
+    private readonly _corruptDomainPitchRow = div(
+        { class: "selectRow", style: "justify-content: unset" },
+        this._corruptDomainPitchBox,
+        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("corruptionNotes") }, "Notes"),
+        this._corruptNoteDropdown
+    );
+    private readonly _corruptDomainPatternBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 1em;" });
+    private readonly _corruptDomainPatternRow = div(
+        { class: "selectRow", style: "justify-content: unset" },
+        this._corruptDomainPatternBox,
+        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("corruptionPatterns") }, "Patterns"),
+        this._corruptPatternDropdown
+    );
     private readonly _corruptDomainInstrumentBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 1em;" });
     private readonly _corruptDomainInstrumentRow = div(
         { class: "selectRow", style: "justify-content: unset" },
         this._corruptDomainInstrumentBox,
-        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("backwards") }, "Instrument"),
+        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("corruptionInstruments") }, "Instruments"),
         this._corruptInstrumentDropdown,
+    );
+    private readonly _corruptDomainLayoutBox = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-left: 0.4em; margin-right: 1em;" });
+    private readonly _corruptDomainLayoutRow = div(
+        { class: "selectRow corruption-surprise-layout", style: "justify-content: unset; display: none;" },
+        this._corruptDomainLayoutBox,
+        span({ class: "tip", style: "line-height: normal;", onclick: () => this._openPrompt("corruptionLayout") }, "⚠ Layout ⚠"),
+        this._corruptLayoutDropdown,
+    );
+    private readonly _corruptSurpriseCountdown = div(
+        { class: "selectRow countdown-surprise", style: "justify-content: unset;" },
+        span({ class: "tipless", style: "line-height: normal;  width: auto;" }),
     );
     private readonly _keyboardLayout: KeyboardLayout = new KeyboardLayout(this._doc);
     private readonly _patternEditorPrev: PatternEditor = new PatternEditor(this._doc, false, -1);
@@ -1457,19 +1550,22 @@ export class SongEditor {
             this._sampleLoadingStatusContainer,
             div({ class: "corruption-surprise" },
                 div({ class: "corruption-song-settings" },
-                    div({ style: "margin: 3px 0; position: relative; text-align: center; color: ${ColorConfig.secondaryText};" },
+                    div({ style: "margin: 0.6em 0 3px 0; position: relative; text-align: center; color: ${ColorConfig.secondaryText};" },
                         "Corruption Settings",
                     ),
                     this._corruptButton,
-                    this._corruptOptionKeepPitchRow,
-                    this._corruptOptionIncludeNullPatternsRow,
                     div({ class: "selectRow", style: "justify-content: center;" },
-                        span({ class: "tip", style: "width: unset", onclick: () => this._openPrompt("tempo") }, "Domains "),
+                        span({ class: "tip", style: "width: unset; margin-top: 0.5em;", onclick: () => this._openPrompt("corruptionDomains") }, "Domains "),
                     ),
                     this._corruptDomainPitchRow,
+                    this._corruptNoteDropdownGroup,
                     this._corruptDomainPatternRow,
+                    this._corruptPatternDropdownGroup,
                     this._corruptDomainInstrumentRow,
                     this._corruptInstrumentDropdownGroup,
+                    this._corruptDomainLayoutRow,
+                    this._corruptLayoutDropdownGroup,
+                    this._corruptSurpriseCountdown,
                 ),
             ),
         ),
@@ -1546,7 +1642,10 @@ export class SongEditor {
     private _openOperatorDropdowns: boolean[] = [];
     private _openPulseWidthDropdown: boolean = false;
     private _openUnisonDropdown: boolean = false;
+    private _openCorruptNoteOptionsDropdown: boolean = false;
+    private _openCorruptPatternOptionsDropdown: boolean = false;
     private _openCorruptInstrumentOptionsDropdown: boolean = false;
+    private _openCorruptLayoutOptionsDropdown: boolean = false;
 
     private outVolumeHistoricTimer: number = 0;
     private outVolumeHistoricCap: number = 0;
@@ -1754,16 +1853,13 @@ export class SongEditor {
             this._corruptBeep();
         });
         this._corruptOptionKeepPitchBox.addEventListener("input", () => { this.corruptOptions.keepPitch = !this.corruptOptions.keepPitch });
+        this._corruptOptionStayOnScaleBox.addEventListener("input", () => { this.corruptOptions.stayOnScale = !this.corruptOptions.stayOnScale });
         this._corruptOptionIncludeNullPatternsBox.addEventListener("input", () => { this.corruptOptions.includeNotelessPatterns = !this.corruptOptions.includeNotelessPatterns });
-        this._corruptDomainPitchBox.addEventListener("input", () => { this.corruptDomains.pitch = !this.corruptDomains.pitch });
-        this._corruptDomainPatternBox.addEventListener("input", () => { this.corruptDomains.pattern = !this.corruptDomains.pattern });
-        this._corruptDomainInstrumentBox.addEventListener("input", () => { 
-            this.corruptDomains.instrument = !this.corruptDomains.instrument;
-            
-            this.corruptDomains.instrument
-                ? this._corruptInstrumentDropdownGroup.classList.remove("disabled-dropdown-group")
-                : this._corruptInstrumentDropdownGroup.classList.add("disabled-dropdown-group");
-         });
+        this._corruptDomainPitchBox.addEventListener("input", this._whenSetCorruptDomainNote);
+        this._corruptDomainPatternBox.addEventListener("input", this._whenSetCorruptDomainPattern);
+        this._corruptDomainInstrumentBox.addEventListener("input", this._whenSetCorruptDomainInstrument);
+        this._corruptDomainLayoutBox.addEventListener("input", this._whenSetCorruptDomainLayout);
+        this._corruptLayoutAutoCorruptBox.addEventListener("input", () => { this.corruptOptions.autoCorruptLayout = !this.corruptOptions.autoCorruptLayout });
         this._corruptInstrumentVolumeBox.addEventListener("input", () => { this.corruptInstrumentOpt.volume = !this.corruptInstrumentOpt.volume });
         this._corruptInstrumentPanBox.addEventListener("input", () => { this.corruptInstrumentOpt.pan = !this.corruptInstrumentOpt.pan });
         this._corruptInstrumentTransitionBox.addEventListener("input", () => { this.corruptInstrumentOpt.transition = !this.corruptInstrumentOpt.transition });
@@ -1960,11 +2056,26 @@ export class SongEditor {
                 this._openUnisonDropdown = this._openUnisonDropdown ? false : true;
                 group = this._unisonDropdownGroup;
                 break;
+            case DropdownID.CorruptNote:
+                target = this._corruptNoteDropdown;
+                this._openCorruptNoteOptionsDropdown = this._openCorruptNoteOptionsDropdown ? false : true;
+                group = this._corruptNoteDropdownGroup;
+                break;
+            case DropdownID.CorruptPattern:
+                target = this._corruptPatternDropdown;
+                this._openCorruptPatternOptionsDropdown = this._openCorruptPatternOptionsDropdown ? false : true;
+                group = this._corruptPatternDropdownGroup;
+                break;
             case DropdownID.CorruptInstrument:
                 target = this._corruptInstrumentDropdown;
                 this._openCorruptInstrumentOptionsDropdown = this._openCorruptInstrumentOptionsDropdown ? false : true;
                 group = this._corruptInstrumentDropdownGroup;
                 break;
+                case DropdownID.CorruptLayout:
+                    target = this._corruptLayoutDropdown;
+                    this._openCorruptLayoutOptionsDropdown = this._openCorruptLayoutOptionsDropdown ? false : true;
+                    group = this._corruptLayoutDropdownGroup;
+                    break;
         }
 
         if (target.textContent == "▼") {
@@ -5060,7 +5171,66 @@ export class SongEditor {
     }
 
     public _corruptBeep = (): void => {
-        this._doc.record(new ChangeCorruptionBlast(this._doc, this.corruptOptions, this.isFirstAccessToBariBox));
+        const isAnyCorruptDomainSelected = Object.values(this.corruptDomains).includes(true)
+        if (isAnyCorruptDomainSelected) {
+            this._doc.record(new ChangeCorruptionBlast(this._doc, this.corruptOptions, this.isFirstAccessToBariBox));
+            if (this.surpriseCountdown) {
+                this.surpriseCountdown--;
+                window.localStorage.setItem(this.surpriseCountdownLocalStorage, JSON.stringify(this.surpriseCountdown));
+                if (!this.surpriseCountdown) {
+                    this._playSurpriseAnim();
+                } else if (this.isBelowFraction(this.surpriseCountdown, this.totalSurpriseCountdown, 5)) {
+                    this._corruptSurpriseCountdown.classList.add("open");
+                }
+                this._corruptSurpriseCountdown.children[0].innerHTML = `${this.surpriseCountdown} clicks remaining`;
+            }
+
+            if (this.corruptDomains.layout) {
+                this._byeBye(this.corruptOptions.autoCorruptLayout);
+            }
+        }
+    }
+
+    public _playSurpriseAnim = (): void => {
+        this._corruptSurpriseCountdown.classList.remove("open");
+        setTimeout(() => {
+            this._corruptSurpriseCountdown.style.display = `none`;
+            this._corruptDomainLayoutRow.style.display = "flex";
+            this._corruptDomainLayoutRow.append(div( { class: "spawn-anim" }, {style: "width: 192px; height: 26px; position: absolute;"} ))
+            this._corruptDomainLayoutRow.classList.add("load");
+        }, 750);
+    }
+
+    private _whenSetCorruptDomainNote = (): void => {
+        this.corruptDomains.pitch = !this.corruptDomains.pitch;
+
+        this.corruptDomains.pitch
+            ? this._corruptNoteDropdownGroup.classList.remove("disabled-dropdown-group")
+            : this._corruptNoteDropdownGroup.classList.add("disabled-dropdown-group");
+    }
+
+    private _whenSetCorruptDomainPattern = (): void => {
+        this.corruptDomains.pattern = !this.corruptDomains.pattern;
+
+        this.corruptDomains.pattern
+            ? this._corruptPatternDropdownGroup.classList.remove("disabled-dropdown-group")
+            : this._corruptPatternDropdownGroup.classList.add("disabled-dropdown-group");
+    }
+
+    private _whenSetCorruptDomainInstrument = (): void => {
+        this.corruptDomains.instrument = !this.corruptDomains.instrument;
+
+        this.corruptDomains.instrument
+            ? this._corruptInstrumentDropdownGroup.classList.remove("disabled-dropdown-group")
+            : this._corruptInstrumentDropdownGroup.classList.add("disabled-dropdown-group");
+    }
+
+    private _whenSetCorruptDomainLayout = (): void => {
+        this.corruptDomains.layout = !this.corruptDomains.layout;
+
+        this.corruptDomains.layout
+            ? this._corruptLayoutDropdownGroup.classList.remove("disabled-dropdown-group")
+            : this._corruptLayoutDropdownGroup.classList.add("disabled-dropdown-group");
     }
 
     private _whenSetTransition = (): void => {
@@ -5355,5 +5525,50 @@ export class SongEditor {
         this._customWavePresetDrop.selectedIndex = 0;
         this._doc.notifier.changed();
         this._doc.prefs.save();
+    }
+
+    // Modified code from the jsRTC by Ircluzar:
+    // https://github.com/redscientistlabs/jsRTC/blob/master/jsRTC_for_Webpages.txt
+    private _byeBye = (isAutoCorrupt: boolean = false): void => {
+        console.log('BYEBYE :)')
+        var intensity = isAutoCorrupt ? 10 : 100;
+        var errordelay = 1;
+
+        console.log(intensity)
+        function getOne() {
+            var elems = parent.document.body.getElementsByTagName("*");
+            var elem;
+
+            elem = elems[Math.floor(Math.random() * elems.length)];
+
+            return elem;
+        }
+
+        function corruptOneCss() {
+            var e = getOne().classList[0],
+                s = getOne();
+            s.classList[0];
+            s.classList.add(e);
+            var t = getOne().classList[1],
+                a = getOne();
+            s.classList[1];
+            a.classList.add(t)
+        }
+
+
+        function Blast() {
+            for (let i = 0; i < intensity; i++) {
+                corruptOneCss();
+            }
+        }
+
+        function startAutoCorrupt() {
+            setInterval(function () {
+                Blast();
+            }, errordelay * (1000 / 60));
+        }
+
+        isAutoCorrupt ? startAutoCorrupt() : Blast() ;
+        
     }
 }

@@ -87,7 +87,10 @@ export const enum DropdownID {
     PulseWidth = 5,
     Unison = 6,
     Envelope = 7,
-    CorruptInstrument = 8,
+    CorruptNote = 8,
+    CorruptPattern = 9,
+    CorruptInstrument = 10,
+    CorruptLayout = 11,
 
 }
 

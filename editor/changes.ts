@@ -515,6 +515,8 @@ export class CorruptionInstrumentOptions {
 export class CorruptionOptions {
     public keepPitch: boolean;
     public includeNotelessPatterns: boolean;
+    public stayOnScale: boolean;
+    public autoCorruptLayout: boolean;
     public intensity: number;
     public domains: CorruptionDomains;
     public instrumentOptions: CorruptionInstrumentOptions;
@@ -523,6 +525,7 @@ export class CorruptionDomains {
     public pitch: boolean;
     public pattern: boolean;
     public instrument: boolean;
+    public layout: boolean;
 }
 export class ChangeCorruptionBlast extends ChangeGroup {
     protected _doc: SongDocument;
@@ -606,7 +609,7 @@ export class ChangeCorruptionBlast extends ChangeGroup {
 
             return instrument;
         }
-        function corruptNotes(channel: Channel, maxPitch: number, shuffledPitches: number[]) {
+        function corruptNotes(channel: Channel, maxPitch: number, shuffledPitches: number[], snapToScale: boolean = false) {
             for (let p: number = 0; p < channel.patterns.length; p++) {
                 const pattern = channel.patterns[p];
                 for (let n: number = 0; n < pattern.notes.length; n++) {
@@ -615,7 +618,20 @@ export class ChangeCorruptionBlast extends ChangeGroup {
                         // keepPitch will shuffle notes based on a reference, which allows the song some recognizability
                         // if not, every note it will be completely random :)
                         const _newPitches = _oldPitches.map((pitch: number) => {
-                            return options.keepPitch ? shuffledPitches[pitch] : Math.floor(Math.random() * maxPitch)
+                            let newPitch = options.keepPitch ? shuffledPitches[pitch] : Math.floor(Math.random() * maxPitch)
+
+                            if (snapToScale) {
+                                const scale = doc.song.scale == Config.scales.dictionary["Custom"].index ? doc.song.scaleCustom : Config.scales[doc.song.scale].flags;
+
+                                for (let j: number = newPitch + 1; j <= maxPitch; j++) {
+                                    if (scale[j % 12]) {
+                                        newPitch = j;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            return newPitch;
                         });
 
                         channel.patterns[p].notes[n].pitches = _newPitches;
@@ -644,7 +660,6 @@ export class ChangeCorruptionBlast extends ChangeGroup {
             // corrupt instruments
             if (domains.instrument && !isMod) {
                 for (let instruments_id: number = 0; instruments_id < channel.instruments.length; instruments_id++) {
-                    console.log(channel)
                     const instrument = channel.instruments[instruments_id];
 
                     this._channels[c].instruments[instruments_id] = corruptInstrument(instrument);
@@ -680,7 +695,7 @@ export class ChangeCorruptionBlast extends ChangeGroup {
             if (!isMod && domains.pitch) {
                 if ( !isDrum ) {
                     // corrupt pitches or notes
-                    corruptNotes(channel, maxPitch, shuffledPiano);
+                    corruptNotes(channel, maxPitch, shuffledPiano, options.stayOnScale);
                 } else {
                     // corrupt noises
                     corruptNotes(channel, maxPitchDrums, shuffledDrums);
