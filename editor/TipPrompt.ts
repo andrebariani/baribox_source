@@ -596,7 +596,7 @@ export class TipPrompt implements Prompt {
 				message = div(
 					h2("⚠ Layout ⚠"),
 					p("Congrats, you have unlocked the secret Layout Domain!"),
-					p("When set, it will assign random values to some elements of the layout, probably making it unable to work with. Some changes might not be noticable at first so try corruptiong a few more times. Be careful as these changes are not undoable like the other domains, so you'll have to restart the page to restore the layout."),
+					p("When set, it will assign random values to some elements of the layout, probably making it unable to work with. Some changes might not be noticeable at first so try corruptiong a few more times. Be careful as these changes are not undoable like the other domains, so you'll have to restart the page to restore the layout."),
 				);
 			} break;
 			case "corruptionLayoutAuto": {
