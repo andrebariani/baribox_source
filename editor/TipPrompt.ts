@@ -550,9 +550,9 @@ export class TipPrompt implements Prompt {
 			case "corruptionDomains": {
 				message = div(
 					h2("Domains"),
-					p("BariBox™ introduces Corruptions! With just a click of a button, the corruptor it will go through your song and assign random values to the selected areas which are called domains. Try toggling the options to mix and match the desired effects until you get the bestest quality possible! Technically this is more like a Randomizer but the term Corruption is more marketable and SEO friendly."),
-					p("Be mindful that when you access BariBox™ for the very first time, it will automatically corrupt the song only once and with some corruption options toggled on. This is so everyone accessing the link for the first time will get a personalized experience. Why? Funny."),
-					p("💡 Did you know? If you have Channel Muting enabled in Preferences, you can mute a channel to keep it from corrupting!"),
+					p("BariBox™ introduces Corruptions! With just a click of a button, the corruptor will go through your song and assign random values to each one of the selected areas called domains. Try toggling the domains to mix and match the desired effects until you get the bestest quality possible!"),
+					p("Be mindful that when you access BariBox™ for the very first time, it will automatically corrupt the song only once and with some corruption options toggled on. This is so that everyone accessing the link for the first time will get a personalized experience. Why? Funny."),
+					p("💡 Did you know? If you have Channel Muting enabled in Preferences, a muted channel won't be affected by the corruptor!"),
 				);
 			} break;
 			case "corruptionNotes": {
@@ -564,13 +564,13 @@ export class TipPrompt implements Prompt {
 			case "corruptionKeepPitch": {
 				message = div(
 					h2("Keep Pitch"),
-					p("If set, the new value will be based on a shuffled piano which makes the song a bit recognizable even when it gets corrupted. Else the new value will be completely random."),
+					p("If set, the new value will be based on a shuffled piano which makes the song a bit recognizable even when it gets corrupted. If not, the new value will be completely random."),
 				);
 			} break;
 			case "corruptionStayOnScale": {
 				message = div(
-					h2("Stay in Scale"),
-					p("If set, the new note value will snap to the currently selected scale as if it were moved up. With a pentatonic scale selected for example you can generate an almost ok-ish sounding music. But that's not exactly funny so why would you do that?"),
+					h2("Stay on Scale"),
+					p("If set, the new note value will snap to the currently selected scale as if it were moved up one pitch. With a pentatonic scale selected for example you can generate an almost ok-ish sounding music. But that wouldn't be funny so why would you do that?"),
 				);
 			} break;
 			case "corruptionPatterns": {
@@ -595,8 +595,8 @@ export class TipPrompt implements Prompt {
 			case "corruptionLayout": {
 				message = div(
 					h2("⚠ Layout ⚠"),
-					p("Congrats, you've unlocked the secret Layout Domain!"),
-					p("When set, it will assign random values to some elements of the layout, probably making it unable to work with. Be careful as these changes are not undoable like the other domains, so you'll have to restart the page to restore the layout."),
+					p("Congrats, you have unlocked the secret Layout Domain!"),
+					p("When set, it will assign random values to some elements of the layout, probably making it unable to work with. Some changes might not be noticable at first so try corruptiong a few more times. Be careful as these changes are not undoable like the other domains, so you'll have to restart the page to restore the layout."),
 				);
 			} break;
 			case "corruptionLayoutAuto": {
