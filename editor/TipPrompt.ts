@@ -570,7 +570,7 @@ export class TipPrompt implements Prompt {
 			case "corruptionStayOnScale": {
 				message = div(
 					h2("Stay on Scale"),
-					p("If set, the new note value will snap to the currently selected scale as if it were moved up one pitch. With a pentatonic scale selected for example you can generate an almost ok-ish sounding music. But that wouldn't be funny so why would you do that?"),
+					p("If set, the new note value will snap to the currently selected scale as if it were moved up by one pitch. With a pentatonic scale selected for example you can generate an almost ok-ish sounding music. But that wouldn't be funny so why would you do that?"),
 				);
 			} break;
 			case "corruptionPatterns": {
