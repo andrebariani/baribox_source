@@ -802,7 +802,7 @@ export class SongEditor {
                 this.spawnLayoutSettings();
             } else if (this.isBelowFraction(this.surpriseCountdown, this.totalSurpriseCountdown, 5)) {
                 this._corruptSurpriseCountdown.classList.add("open");
-                this._corruptSurpriseCountdown.children[0].innerHTML = `⭐ ${this.surpriseCountdown} clicks remaining ⭐`;
+                this._corruptSurpriseCountdown.children[0].innerHTML = `⭐ ${this.surpriseCountdown} corrupts left ⭐`;
             }
         }
     }
@@ -5182,7 +5182,7 @@ export class SongEditor {
                 } else if (this.isBelowFraction(this.surpriseCountdown, this.totalSurpriseCountdown, 5)) {
                     this._corruptSurpriseCountdown.classList.add("open");
                 }
-                this._corruptSurpriseCountdown.children[0].innerHTML = `⭐ ${this.surpriseCountdown} clicks remaining ⭐`;
+                this._corruptSurpriseCountdown.children[0].innerHTML = `⭐ ${this.surpriseCountdown} corrupts left ⭐`;
             }
 
             if (this.corruptDomains.layout) {

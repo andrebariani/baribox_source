@@ -550,9 +550,9 @@ export class TipPrompt implements Prompt {
 			case "corruptionDomains": {
 				message = div(
 					h2("Domains"),
-					p("BariBox™ introduces Corruptions! With just a click of a button, the corruptor will go through your song and assign random values to each one of the selected areas called domains. Try toggling the domains to mix and match the desired effects until you get the bestest quality possible!"),
-					p("Be mindful that when you access BariBox™ for the very first time, it will automatically corrupt the song only once and with some corruption options toggled on. This is so that everyone accessing the link for the first time will get a personalized experience. Why? Funny."),
-					p("💡 Did you know? If you have Channel Muting enabled in Preferences, a muted channel won't be affected by the corruptor!"),
+					p("BariBox™ introduces Corruptions! With just a click of a button, the corruptor will go through your song and assign random values to each one of the selected areas which called Domains. Try toggling the domains to mix and match the desired effects until you get the bestest quality possible!"),
+					p("When you access BariBox™ for the very first time, it will automatically corrupt the song once and with some corruption options toggled on. This is so that everyone accessing a BariBox™ link for the first time will get a personalized experience. Why? Funny."),
+					p("💡 Did you know? With Channel Muting enabled in Preferences, you can mute a channel to keep it from getting corrupted!"),
 				);
 			} break;
 			case "corruptionNotes": {
@@ -596,7 +596,7 @@ export class TipPrompt implements Prompt {
 				message = div(
 					h2("⚠ Layout ⚠"),
 					p("Congrats, you have unlocked the secret Layout Domain!"),
-					p("When set, it will assign random values to some elements of the layout, probably making it unable to work with. Some changes might not be noticeable at first so try corruptiong a few more times. Be careful as these changes are not undoable like the other domains, so you'll have to restart the page to restore the layout."),
+					p("When set, it will assign random values to some elements of the layout, probably making it unable to work with. Some changes might not be noticeable at first so try corrupting a few more times. Be careful as these changes are not undoable like the other domains, so you'll have to restart the page to restore the layout."),
 				);
 			} break;
 			case "corruptionLayoutAuto": {
