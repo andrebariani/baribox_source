@@ -56,7 +56,6 @@ import { AddSamplesPrompt } from "./AddSamplesPrompt";
 
 import { errorAlert } from "./SongRecovery";
 import { ShortenerConfigPrompt } from "./ShortenerConfigPrompt";
-import { errorAlert } from "./SongRecovery";
 
 const { button, div, input, select, span, optgroup, option, canvas } = HTML;
 
