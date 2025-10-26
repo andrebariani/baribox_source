@@ -783,12 +783,13 @@ export class ChangeRandomGeneratedInstrument extends Change {
             new PotentialFilterPoint(0.2, FilterType.peak, 0, maxFreq, 500.0, 0),
         ]);
 
-        if (isNoise) {
-            const type: InstrumentType = selectWeightedRandom([
-                { item: InstrumentType.noise, weight: 1 },
-                { item: InstrumentType.spectrum, weight: 3 },
-            ]);
-            instrument.preset = instrument.type = type;
+		if (isNoise) {
+			const type: InstrumentType = selectWeightedRandom([
+				{ item: InstrumentType.noise, weight: 3 },
+				{ item: InstrumentType.spectrum, weight: 3 },
+                { item: InstrumentType.drumset, weight: 1 },
+			]);
+			instrument.preset = instrument.type = type;
 
             if (type != InstrumentType.drumset) { // Drumset doesn't use fade.
                 instrument.fadeIn = (Math.random() < 0.8) ? 0 : selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);
@@ -899,71 +900,139 @@ export class ChangeRandomGeneratedInstrument extends Change {
                 instrument.reverb = selectCurvedDistribution(1, Config.reverbRange - 1, 1, 1);
             }
 
-            function normalize(harmonics: number[]): void {
-                let max: number = 0;
-                for (const value of harmonics) {
-                    if (value > max) max = value;
-                }
-                for (let i: number = 0; i < harmonics.length; i++) {
-                    harmonics[i] = Config.harmonicsMax * harmonics[i] / max;
-                }
-            }
-            switch (type) {
-                case InstrumentType.noise: {
-                    instrument.chipNoise = (Math.random() * Config.chipNoises.length) | 0;
-                } break;
-                case InstrumentType.spectrum: {
-                    const spectrumGenerators: Function[] = [
-                        (): number[] => {
-                            const spectrum: number[] = [];
-                            for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
-                                spectrum[i] = (Math.random() < 0.5) ? Math.random() : 0.0;
-                            }
-                            return spectrum;
-                        },
-                        (): number[] => {
-                            let current: number = 1.0;
-                            const spectrum: number[] = [current];
-                            for (let i = 1; i < Config.spectrumControlPoints; i++) {
-                                current *= Math.pow(2, Math.random() - 0.52);
-                                spectrum[i] = current;
-                            }
-                            return spectrum;
-                        },
-                        (): number[] => {
-                            let current: number = 1.0;
-                            const spectrum: number[] = [current];
-                            for (let i = 1; i < Config.spectrumControlPoints; i++) {
-                                current *= Math.pow(2, Math.random() - 0.52);
-                                spectrum[i] = current * Math.random();
-                            }
-                            return spectrum;
-                        },
-                    ];
-                    const generator = spectrumGenerators[(Math.random() * spectrumGenerators.length) | 0];
-                    const spectrum: number[] = generator();
-                    normalize(spectrum);
-                    for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
-                        instrument.spectrumWave.spectrum[i] = Math.round(spectrum[i]);
-                    }
-                    instrument.spectrumWave.markCustomWaveDirty();
-                } break;
-                default: throw new Error("Unhandled noise instrument type in random generator.");
-            }
-        } else {
-            const type: InstrumentType = selectWeightedRandom([
-                { item: InstrumentType.chip, weight: 4 },
-                { item: InstrumentType.pwm, weight: 4 },
-                { item: InstrumentType.supersaw, weight: 5 },
-                // { item: InstrumentType.customChipWave, weight: 3 },
-                { item: InstrumentType.harmonics, weight: 5 },
-                { item: InstrumentType.pickedString, weight: 5 },
-                { item: InstrumentType.spectrum, weight: 1 },
-                { item: InstrumentType.fm, weight: 5 },
-                { item: InstrumentType.fm6op, weight: 3 },
-            ]);
-            instrument.preset = instrument.type = type;
+            // Configure this to whatever you'd like.
+            if (type == InstrumentType.noise || type == InstrumentType.spectrum) {
+                instrument.unison = Config.unisons.dictionary[selectWeightedRandom([
+                    { item: "none", weight: 100 },
+                    { item: "shimmer", weight: 10 },
+                    { item: "hum", weight: 8 },
+                    { item: "honky tonk", weight: 6 },
+                    { item: "dissonant", weight: 2 },
+                    { item: "fifth", weight: 4 },
+                    { item: "octave", weight: 5 },
+                    { item: "bowed", weight: 4 },
+                    { item: "piano", weight: 10 },
+                    { item: "warbled", weight: 5 },
+                    { item: "hecking gosh", weight: 3 },
+                    { item: "spinner", weight: 6 },
+                    { item: "detune", weight: 4 },
+                    { item: "rising", weight: 2 },
+                    { item: "vibrate", weight: 3 },
+                    { item: "bass", weight: 2 },
+                    { item: "recurve", weight: 3 },
+                    { item: "inject", weight: 2 },
+                    { item: "FART", weight: 1 },
+                    // { item: "custom", weight: 10 },
+                ])].index;
 
+                if (instrument.unison != Config.unisons.dictionary["none"].index && Math.random() > 0.4)
+                instrument.addEnvelope(Config.instrumentAutomationTargets.dictionary["unison"].index, 0, Config.envelopes.dictionary[selectWeightedRandom([
+                    { item: "twang -1", weight: 3 },
+                    { item: "twang 1", weight: 3 },
+                    { item: "twang 2", weight: 2 },
+                    { item: "swell 1", weight: 1 },
+                    { item: "decay -1", weight: 3 },
+                    { item: "decay 1", weight: 3 },
+                    { item: "decay 2", weight: 2 },
+                    { item: "wibble-1", weight: 2 },
+                    { item: "wibble 1", weight: 2 },
+                    { item: "wibble 2", weight: 1 },
+                    { item: "wibble 3", weight: 1 },
+                    { item: "linear-2", weight: 2 },
+                    { item: "linear-1", weight: 2 },
+                    { item: "linear 1", weight: 2 },
+                    { item: "linear 2", weight: 1 },
+                    { item: "linear 3", weight: 1 },
+                    { item: "rise 1", weight: 1 },
+                    { item: "rise 2", weight: 1 },
+                ])].index);
+            }
+
+			function normalize(harmonics: number[]): void {
+				let max: number = 0;
+				for (const value of harmonics) {
+					if (value > max) max = value;
+				}
+				for (let i: number = 0; i < harmonics.length; i++) {
+					harmonics[i] = Config.harmonicsMax * harmonics[i] / max;
+				}
+			}
+			switch (type) {
+				case InstrumentType.noise: {
+					instrument.chipNoise = (Math.random() * Config.chipNoises.length) | 0;
+				} break;
+				case InstrumentType.spectrum: {
+					const spectrumGenerators: Function[] = [
+						(): number[] => {
+							const spectrum: number[] = [];
+							for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
+								spectrum[i] = (Math.random() < 0.5) ? Math.random() : 0.0;
+							}
+							return spectrum;
+						},
+						(): number[] => {
+							let current: number = 1.0;
+							const spectrum: number[] = [current];
+							for (let i = 1; i < Config.spectrumControlPoints; i++) {
+								current *= Math.pow(2, Math.random() - 0.52);
+								spectrum[i] = current;
+							}
+							return spectrum;
+						},
+						(): number[] => {
+							let current: number = 1.0;
+							const spectrum: number[] = [current];
+							for (let i = 1; i < Config.spectrumControlPoints; i++) {
+								current *= Math.pow(2, Math.random() - 0.52);
+								spectrum[i] = current * Math.random();
+							}
+							return spectrum;
+						},
+					];
+					const generator = spectrumGenerators[(Math.random() * spectrumGenerators.length) | 0];
+					const spectrum: number[] = generator();
+					normalize(spectrum);
+					for (let i: number = 0; i < Config.spectrumControlPoints; i++) {
+						instrument.spectrumWave.spectrum[i] = Math.round(spectrum[i]);
+					}
+					instrument.spectrumWave.markCustomWaveDirty();
+				} break;
+                case InstrumentType.drumset: {
+                    for (let i: number = 0; i < Config.drumCount; i++) {
+                        // Might wanna do this Random*Config.____.length thing for all envelope/unison randomization?
+                        instrument.drumsetEnvelopes[i] = Math.floor(Math.random() * Config.envelopes.length);
+                        const spectrum: number[] = [];
+                        let randomFactor: number = Math.floor(Math.random() * 3)
+                        for (let j = 0; j < Config.spectrumControlPoints; j++) {
+                            if (randomFactor == 0 || randomFactor == 3) spectrum[j] = Math.pow(Math.random(), 3) * 0.25;
+                            else if (randomFactor == 1) spectrum[j] = Math.pow(Math.random(), ((i / 8) + 1));
+                            else if (randomFactor == 2) spectrum[j] = (Math.pow(Math.random(), 2)) * ((i / 3) + 1);
+                            else spectrum[j] = Math.pow(Math.random(), 3) * 0.25;
+                        }
+                        normalize(spectrum);
+                        for (let j: number = 0; j < Config.spectrumControlPoints; j++) {
+                            instrument.drumsetSpectrumWaves[i].spectrum[j] = Math.round(spectrum[j]);
+                        }
+                        instrument.drumsetSpectrumWaves[i].markCustomWaveDirty();
+                    }
+                } break;
+				default: throw new Error("Unhandled noise instrument type in random generator.");
+			}
+		} else {
+			const type: InstrumentType = selectWeightedRandom([
+                { item: InstrumentType.chip, weight: 2 },
+                // { item: InstrumentType.noise, weight: 1 },
+                { item: InstrumentType.pwm, weight: 2 },
+                { item: InstrumentType.supersaw, weight: 2 },
+                { item: InstrumentType.customChipWave, weight: 2 },
+                { item: InstrumentType.harmonics, weight: 2 },
+                { item: InstrumentType.pickedString, weight: 2 },
+                { item: InstrumentType.spectrum, weight: 2 },
+                { item: InstrumentType.fm, weight: 2 },
+				{ item: InstrumentType.fm6op, weight: 2 },
+			]);
+			instrument.preset = instrument.type = type;
+			
             instrument.fadeIn = (Math.random() < 0.5) ? 0 : selectCurvedDistribution(0, Config.fadeInRange - 1, 0, 2);
             instrument.fadeOut = selectCurvedDistribution(0, Config.fadeOutTicks.length - 1, Config.fadeOutNeutral, 2);
             if (type == InstrumentType.chip || type == InstrumentType.harmonics || type == InstrumentType.pickedString || type == InstrumentType.customChipWave || type == InstrumentType.pwm || type == InstrumentType.spectrum) { // TODO: add noise
@@ -991,20 +1060,20 @@ export class ChangeRandomGeneratedInstrument extends Change {
                 ])].index;
                 /* randomly generated unisons don't work correctly - instead of trying to fix them, just ignore it
 
-                // if (instrument.unison == Config.unisons.length) {
-                //     instrument.unisonVoices = 2;
-                //     instrument.unisonSpread = Math.floor(Math.random() * 12000 - 6000) / 1000;
-                //     instrument.unisonOffset = Math.floor(Math.random() * 12000 - 6000) / 1000;
-                //     instrument.unisonExpression = 1;
-                //     instrument.unisonSign = Math.floor(Math.random() * 2000 - 1000) / 1000;
-                //     // console.log(instrument.unisonVoices, instrument.unisonSpread, instrument.unisonOffset, instrument.unisonExpression, instrument.unisonSign);
-                // } else {
-                instrument.unisonVoices = Config.unisons[instrument.unison].voices;
-                instrument.unisonSpread = Config.unisons[instrument.unison].spread;
-                instrument.unisonOffset = Config.unisons[instrument.unison].offset;
-                instrument.unisonExpression = Config.unisons[instrument.unison].expression;
-                instrument.unisonSign = Config.unisons[instrument.unison].sign;
-                // } 
+                if (instrument.unison == Config.unisons.length) {
+                    instrument.unisonVoices = 2;
+                    instrument.unisonSpread = Math.floor(Math.random() * 12000 - 6000) / 1000;
+                    instrument.unisonOffset = Math.floor(Math.random() * 12000 - 6000) / 1000;
+                    instrument.unisonExpression = 1;
+                    instrument.unisonSign = Math.floor(Math.random() * 2000 - 1000) / 1000;
+                    console.log(instrument.unisonVoices, instrument.unisonSpread, instrument.unisonOffset, instrument.unisonExpression, instrument.unisonSign);
+                } else {  */
+                    instrument.unisonVoices = Config.unisons[instrument.unison].voices;
+                    instrument.unisonSpread = Config.unisons[instrument.unison].spread;
+                    instrument.unisonOffset = Config.unisons[instrument.unison].offset;
+                    instrument.unisonExpression = Config.unisons[instrument.unison].expression;
+                    instrument.unisonSign = Config.unisons[instrument.unison].sign;
+            //  } 
             }
 
             if (Math.random() < 0.1) {
@@ -1127,28 +1196,28 @@ export class ChangeRandomGeneratedInstrument extends Change {
                 instrument.effects |= 1 << EffectType.reverb;
                 instrument.reverb = selectCurvedDistribution(1, Config.reverbRange - 1, 1, 1);
             }
-            function normalize(harmonics: number[]): void {
-                let max: number = 0;
-                for (const value of harmonics) {
-                    if (value > max) max = value;
-                }
-                for (let i: number = 0; i < harmonics.length; i++) {
-                    harmonics[i] = Config.harmonicsMax * harmonics[i] / max;
-                }
-            }
-            switch (type) {
-                case InstrumentType.chip: {
-                    instrument.chipWave = (Math.random() * Config.chipWaves.length) | 0;
-                    // advloop addition
-                    instrument.isUsingAdvancedLoopControls = false;
-                    instrument.chipWaveLoopStart = 0;
-                    instrument.chipWaveLoopEnd = Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
-                    instrument.chipWaveLoopMode = 0;
-                    instrument.chipWavePlayBackwards = false;
-                    instrument.chipWaveStartOffset = 0;
-                    // advloop addition
-                } break;
-                case InstrumentType.pwm:
+			function normalize(harmonics: number[]): void {
+				let max: number = 0;
+				for (const value of harmonics) {
+					if (value > max) max = value;
+				}
+				for (let i: number = 0; i < harmonics.length; i++) {
+					harmonics[i] = Config.harmonicsMax * harmonics[i] / max;
+				}
+			}
+			switch (type) {
+				case InstrumentType.chip: {
+					instrument.chipWave = (Math.random() * Config.chipWaves.length) | 0;
+							// advloop addition
+                            instrument.isUsingAdvancedLoopControls = false;
+                            instrument.chipWaveLoopStart = 0;
+                            instrument.chipWaveLoopEnd = Config.rawRawChipWaves[instrument.chipWave].samples.length - 1;
+                            instrument.chipWaveLoopMode = 0;
+                            instrument.chipWavePlayBackwards = false;
+                            instrument.chipWaveStartOffset = 0;
+                            // advloop addition
+				} break;
+				case InstrumentType.pwm:
                 case InstrumentType.supersaw: {
 					if (type == InstrumentType.supersaw) {
 						instrument.supersawDynamism = selectCurvedDistribution(0, Config.supersawDynamismMax, Config.supersawDynamismMax, 2);
@@ -1281,7 +1350,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
                             { item: "sawtooth", weight: 3 },
                             { item: "ramp", weight: 3 },
                             { item: "trapezoid", weight: 4 },
-                            { item: "rounded", weight: 2 },
+				            { item: "quasi-sine", weight: 2 },
                         ])].index;
 						if (instrument.operators[i].waveform == 2/*"pulse width"*/) {
 							instrument.operators[i].pulseWidth = selectWeightedRandom([
@@ -1342,9 +1411,122 @@ export class ChangeRandomGeneratedInstrument extends Change {
                             { item: "rise 1", weight: 2 },
                             { item: "rise 2", weight: 2 },
                             { item: "rise 3", weight: 1 },
-                        ])].index);
+						])].index);
+						}
+                        instrument.operators[i].waveform = Config.operatorWaves.dictionary[selectWeightedRandom([
+                            { item: "sine", weight: 10 },
+                            { item: "triangle", weight: 6 },
+                            { item: "pulse width", weight: 6 },
+                            { item: "sawtooth", weight: 3 },
+                            { item: "ramp", weight: 3 },
+                            { item: "trapezoid", weight: 4 },
+				            { item: "quasi-sine", weight: 2 },
+                        ])].index;
+						if (instrument.operators[i].waveform == 2) {
+							instrument.operators[i].pulseWidth = selectWeightedRandom([
+								{ item: 0, weight: 3 },
+								{ item: 1, weight: 5 },
+								{ item: 2, weight: 7 },
+								{ item: 3, weight: 10 },
+								{ item: 4, weight: 15 },
+								{ item: 5, weight: 25 }, // 50%
+								{ item: 6, weight: 15 },
+								{ item: 7, weight: 10 },
+								{ item: 8, weight: 7 },
+								{ item: 9, weight: 5 },
+								{ item: 9, weight: 3 },
+							]);
+						}
+					}
+					instrument.feedbackAmplitude = (Math.pow(Math.random(), 3) * Config.operatorAmplitudeMax) | 0;
+                    if (instrument.envelopeCount < Config.maxEnvelopeCount && Math.random() < 0.4) {
+                        instrument.addEnvelope(Config.instrumentAutomationTargets.dictionary["feedbackAmplitude"].index, 0, Config.envelopes.dictionary[selectWeightedRandom([
+                        { item: "none", weight: 4 },
+                        { item: "punch", weight: 2 },
+                        { item: "flare -1", weight: 1 },
+                        { item: "flare 1", weight: 2 },
+                        { item: "flare 2", weight: 2 },
+                        { item: "flare 3", weight: 2 },
+                        { item: "twang -1", weight: 1 },
+                        { item: "twang 1", weight: 2 },
+                        { item: "twang 2", weight: 2 },
+                        { item: "twang 3", weight: 2 },
+                        { item: "swell -1", weight: 2 },
+                        { item: "swell 1", weight: 2 },
+                        { item: "swell 2", weight: 2 },
+                        { item: "swell 3", weight: 1 },
+                        { item: "tremolo0", weight: 1 },
+                        { item: "tremolo1", weight: 1 },
+                        { item: "tremolo2", weight: 1 },
+                        { item: "tremolo3", weight: 1 },
+                        { item: "tremolo4", weight: 1 },
+                        { item: "tremolo5", weight: 1 },
+                        { item: "tremolo6", weight: 1 },
+                        { item: "decay -1", weight: 1 },
+                        { item: "decay 1", weight: 1 },
+                        { item: "decay 2", weight: 2 },
+                        { item: "decay 3", weight: 2 },
+                        { item: "wibble-1", weight: 2 },
+                        { item: "wibble 1", weight: 2 },
+                        { item: "wibble 2", weight: 2 },
+                        { item: "wibble 3", weight: 2 },
+                        { item: "linear-2", weight: 1 },
+                        { item: "linear-1", weight: 1 },
+                        { item: "linear 1", weight: 2 },
+                        { item: "linear 2", weight: 2 },
+                        { item: "linear 3", weight: 1 },
+                        { item: "rise -2", weight: 2 },
+                        { item: "rise -1", weight: 2 },
+                        { item: "rise 1", weight: 2 },
+                        { item: "rise 2", weight: 2 },
+                        { item: "rise 3", weight: 1 },
+					])].index);
+					}
+				} break;
+                case InstrumentType.customChipWave: {
+                    // The custom chip randomizing is a little different. It uses a random algorithm
+                    // (seen as the functions below) to give the waveform unique shapes other than messy
+                    // custom chip sounds. 
+                    let randomGeneratedArray: Float32Array = new Float32Array(64);
+                    let randomGeneratedArrayIntegral: Float32Array = new Float32Array(65);
+                    const algorithmFunction: (wave: Float32Array) => void = selectWeightedRandom([
+                        { item: randomSineWave, weight: 4},
+                        { item: randomPulses, weight: 4},
+                        { item: randomChipWave, weight: 3},
+                        { item: biasedFullyRandom, weight: 2},
+                        { item: fullyRandom, weight: 1},
+                    ]);
+                    algorithmFunction(randomGeneratedArray);
+
+                    let sum: number = 0.0;
+                    for (let i: number = 0; i < randomGeneratedArray.length; i++) sum += randomGeneratedArray[i];
+                    const average: number = sum / randomGeneratedArray.length;
+                    let cumulative: number = 0;
+                    let wavePrev: number = 0;
+                    for (let i: number = 0; i < randomGeneratedArray.length; i++) {
+                        cumulative += wavePrev;
+                        wavePrev = randomGeneratedArray[i] - average;
+                        randomGeneratedArrayIntegral[i] = cumulative;
                     }
+                    randomGeneratedArrayIntegral[64] = 0.0;
+
+                    instrument.customChipWave = randomGeneratedArray;
+                    instrument.customChipWaveIntegral = randomGeneratedArrayIntegral;
                 } break;
+               // case InstrumentType.noise: {
+                //     instrument.chipNoise = selectWeightedRandom([
+                //         { item: 0, weight: 1 }, // retro
+                //         { item: 1, weight: 1 }, // white
+                //         { item: 2, weight: 6 }, // clang
+                //         { item: 3, weight: 6 }, // buzz
+                //         { item: 4, weight: 1 }, // hollow
+                //         { item: 7, weight: 4 }, // cutter
+                //         { item: 8, weight: 4 }, // metallic
+                //         { item: 9, weight: 1 }, // static
+                //         { item: 10, weight: 1 }, // 1-bit white
+                //         { item: 11, weight: 5 }, // 1-bit metallic
+                //     ]);
+                // } break;
                 default: throw new Error("Unhandled pitched instrument type in random generator.");
             }
         }
