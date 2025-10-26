@@ -53,6 +53,8 @@ import { oscilloscopeCanvas } from "../global/Oscilloscope";
 import { VisualLoopControlsPrompt } from "./VisualLoopControlsPrompt";
 import { SampleLoadingStatusPrompt } from "./SampleLoadingStatusPrompt";
 import { AddSamplesPrompt } from "./AddSamplesPrompt";
+
+import { errorAlert } from "./SongRecovery";
 import { ShortenerConfigPrompt } from "./ShortenerConfigPrompt";
 import { errorAlert } from "./SongRecovery";
 
