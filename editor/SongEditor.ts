@@ -754,7 +754,6 @@ export class SongEditor {
     public showFakeErrorMessage: boolean = JSON.parse(getLocalStorageItem(this.showFakeErrorMessageLocalStorage, "true"));
     public totalSurpriseCountdown: number = 25;
     public surpriseCountdown: number = JSON.parse(getLocalStorageItem(this.surpriseCountdownLocalStorage, `${this.totalSurpriseCountdown}`));
-    // public surpriseCountdown: number = JSON.parse(`${this.totalSurpriseCountdown}`);
 
     public bariboxFirstLoad = (): void => {
         this._corruptOptionKeepPitchBox.checked = true;
@@ -1051,6 +1050,7 @@ export class SongEditor {
         option({ value: "showOscilloscope" }, "Show Oscilloscope"),
         option({ value: "showSampleLoadingStatus" }, "Show Sample Loading Status"),
         option({ value: "showDescription" }, "Show Description"),
+        option({ value: "showCorruptionOptions" }, "Show Corruption Options"),
         option({ value: "layout" }, "Set Layout..."),
         option({ value: "colorTheme" }, "Set Theme..."),
 	    option({ value: "customTheme" }, "Custom Theme..."),
@@ -1509,7 +1509,25 @@ export class SongEditor {
             this._sampleLoadingBarContainer,
         ),
     );
-
+    private readonly _corruptionOptionsContainer: HTMLDivElement = div({ class: "corruption-song-settings" },
+        div({ style: "margin: 0.6em 0 3px 0; position: relative; text-align: center; color: ${ColorConfig.secondaryText};" },
+            "Corruption Settings",
+        ),
+        this._corruptButton,
+        div({ class: "selectRow", style: "justify-content: center;" },
+            span({ class: "tip", style: "width: unset; margin-top: 0.5em;", onclick: () => this._openPrompt("corruptionDomains") }, "Domains "),
+        ),
+        this._corruptDomainPitchRow,
+        this._corruptNoteDropdownGroup,
+        this._corruptDomainPatternRow,
+        this._corruptPatternDropdownGroup,
+        this._corruptDomainInstrumentRow,
+        this._corruptInstrumentDropdownGroup,
+        this._corruptDomainLayoutRow,
+        this._corruptLayoutDropdownGroup,
+        this._corruptSurpriseCountdown,
+    );
+    
     private readonly _songSettingsArea: HTMLDivElement = div({ class: "song-settings-area" },
         div({ class: "editor-controls" },
             div({ class: "editor-song-settings" },
@@ -1553,24 +1571,7 @@ export class SongEditor {
             ),
             this._sampleLoadingStatusContainer,
             div({ class: "corruption-surprise" },
-                div({ class: "corruption-song-settings" },
-                    div({ style: "margin: 0.6em 0 3px 0; position: relative; text-align: center; color: ${ColorConfig.secondaryText};" },
-                        "Corruption Settings",
-                    ),
-                    this._corruptButton,
-                    div({ class: "selectRow", style: "justify-content: center;" },
-                        span({ class: "tip", style: "width: unset; margin-top: 0.5em;", onclick: () => this._openPrompt("corruptionDomains") }, "Domains "),
-                    ),
-                    this._corruptDomainPitchRow,
-                    this._corruptNoteDropdownGroup,
-                    this._corruptDomainPatternRow,
-                    this._corruptPatternDropdownGroup,
-                    this._corruptDomainInstrumentRow,
-                    this._corruptInstrumentDropdownGroup,
-                    this._corruptDomainLayoutRow,
-                    this._corruptLayoutDropdownGroup,
-                    this._corruptSurpriseCountdown,
-                ),
+                    this._corruptionOptionsContainer
             ),
         ),
     );
@@ -2485,6 +2486,7 @@ export class SongEditor {
         this._instrumentCopyGroup.style.display = this._doc.prefs.instrumentCopyPaste ? "" : "none";
         this._instrumentExportGroup.style.display = this._doc.prefs.instrumentImportExport ? "" : "none";
         this._instrumentSettingsArea.style.scrollbarWidth = this._doc.prefs.showInstrumentScrollbars ? "" : "none";
+        this._corruptionOptionsContainer.style.display = this._doc.prefs.showCorruptionOptions ? "" : "none";
         if (document.getElementById('text-content'))
             document.getElementById('text-content')!.style.display = this._doc.prefs.showDescription ? "" : "none";
 
@@ -2563,6 +2565,7 @@ export class SongEditor {
             (prefs.showOscilloscope ? textOnIcon : textOffIcon) + "Show Oscilloscope",
             (prefs.showSampleLoadingStatus ? textOnIcon : textOffIcon) + "Show Sample Loading Status",
             (prefs.showDescription ? textOnIcon : textOffIcon) + "Show Description",
+            (prefs.showCorruptionOptions ? textOnIcon : textOffIcon) + "Show Corruption Options",
             textSpacingIcon + "Set Layout...",
             textSpacingIcon + "Set Theme...",
 	        textSpacingIcon + "Custom Theme...",
@@ -5535,6 +5538,9 @@ export class SongEditor {
                 break;
             case "showDescription":
                 this._doc.prefs.showDescription = !this._doc.prefs.showDescription;
+                break;
+            case "showCorruptionOptions":
+                this._doc.prefs.showCorruptionOptions = !this._doc.prefs.showCorruptionOptions;
                 break;
             case "showInstrumentScrollbars":
                 this._doc.prefs.showInstrumentScrollbars = !this._doc.prefs.showInstrumentScrollbars;

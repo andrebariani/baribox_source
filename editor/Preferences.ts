@@ -41,6 +41,7 @@ export class Preferences {
 	public showOscilloscope: boolean;
 	public showSampleLoadingStatus: boolean;
 	public showDescription: boolean;
+	public showCorruptionOptions: boolean;
 	public showInstrumentScrollbars: boolean;
 	public closePromptByClickoff: boolean;
 	public frostedGlassBackground: boolean;
@@ -76,6 +77,7 @@ export class Preferences {
 		this.showOscilloscope = window.localStorage.getItem("showOscilloscope") == "true";
 		this.showSampleLoadingStatus = window.localStorage.getItem("showSampleLoadingStatus") != "false";
 		this.showDescription = window.localStorage.getItem("showDescription") != "false";
+		this.showCorruptionOptions = window.localStorage.getItem("showCorruptionOptions") != "false";
 		this.showInstrumentScrollbars = window.localStorage.getItem("showInstrumentScrollbars") == "true";
 		this.closePromptByClickoff = window.localStorage.getItem("closePromptByClickoff") == "true";
 		this.frostedGlassBackground = window.localStorage.getItem("frostedGlassBackground") == "true";
@@ -129,6 +131,7 @@ export class Preferences {
 		window.localStorage.setItem("showOscilloscope", this.showOscilloscope ? "true" : "false");
 		window.localStorage.setItem("showSampleLoadingStatus", this.showSampleLoadingStatus ? "true" : "false");
 		window.localStorage.setItem("showDescription", this.showDescription ? "true" : "false");
+		window.localStorage.setItem("showCorruptionOptions", this.showCorruptionOptions ? "true" : "false");
 		window.localStorage.setItem("showInstrumentScrollbars", this.showInstrumentScrollbars ? "true" : "false");
 		window.localStorage.setItem("closePromptByClickoff", this.closePromptByClickoff ? "true" : "false");
 		window.localStorage.setItem("frostedGlassBackground", this.frostedGlassBackground ? "true" : "false");
